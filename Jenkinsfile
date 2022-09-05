@@ -3,6 +3,7 @@ pipeline {
     stages {
         stage('build') {
             steps {
+                sh 'brew install postgresql-dev'
                 sh '''
                     python3 -m venv venv
                     source  venv/bin/activate
