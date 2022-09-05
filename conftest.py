@@ -3,6 +3,28 @@ import pytest
 import psycopg2
 
 
+@pytest.fixture(scope="session", autouse=True)
+def init_db():
+    conn = None
+    try:
+        conn = connect(
+            host="localhost",
+            database="suppliers",
+            user="root",
+            password="password")
+        cur = conn.cursor()
+        cur.execute(open("tests/init.sql", "r").read())
+        print('------')
+        print("Init db is Done")
+        cur.close()
+        conn.commit()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            conn.close()
+
+
 @pytest.fixture
 def get_connection():
     conn = None
@@ -25,23 +47,3 @@ def get_connection():
             conn.close()
 
 
-@pytest.fixture(scope='class')
-def init_db():
-    conn = None
-    try:
-        conn = connect(
-            host="localhost",
-            database="suppliers",
-            user="root",
-            password="password")
-        cur = conn.cursor()
-        cur.execute(open("init.sql", "r").read())
-        print('------')
-        print("Init db is Done")
-        cur.close()
-        conn.commit()
-    except (Exception, psycopg2.DatabaseError) as error:
-        print(error)
-    finally:
-        if conn is not None:
-            conn.close()
